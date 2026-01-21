@@ -2,7 +2,7 @@
 /*
  * Plugin Name:       Content Lock
  * Description:       Prevents simultaneous editing of the same content by multiple users. Applies a session-based lock when a user manages/edits content. Other users attempting to access the same content will see a clear message indicating it is being managed by someone else.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            sundew team
  * Author URI:        https://sundewsolutions.com/
  * 
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define Constants.
-define('CONTENT_LOCK_VERSION', '1.0.0');
+define('CONTENT_LOCK_VERSION', '1.0.1');
 define('CONTENT_LOCK_PATH', plugin_dir_path(__FILE__));
 define('CONTENT_LOCK_URL', plugin_dir_url(__FILE__));
 define('CONTENT_LOCK_FILE', __FILE__);

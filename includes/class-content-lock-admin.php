@@ -30,11 +30,10 @@ class Content_Lock_Admin
     public function __construct()
     {
         // Initialize lock duration from settings (minutes → seconds)
-        $this->lock_duration = $this->get_lock_duration_from_settings();
+        $this->lock_duration = $this->sdw_get_lock_duration_from_settings();
 
         // initializes other hooks
         add_action('admin_init', [$this, 'check_and_handle_lock']);
-        add_action('admin_init', [$this, 'add_break_lock_capability']);
         add_filter('wp_post_lock_window', [$this, 'custom_lock_time']);
         add_action('wp_ajax_break_content_lock', [$this, 'break_content_lock']);
         add_action('wp_ajax_check_post_lock_status', [$this, 'ajax_check_lock_status']);
@@ -48,7 +47,7 @@ class Content_Lock_Admin
     /**
      * Check lock status and redirect if necessary
      * 
-     * @since 1.0.0
+     * @since 1.0.1
      * @return void
      */
     public function check_and_handle_lock()
@@ -69,7 +68,9 @@ class Content_Lock_Admin
 
         // If locked by another user
         if ($lock_user_id && $lock_user_id !== get_current_user_id()) {
-            $can_break_lock = current_user_can('break_content_lock');
+            // $can_break_lock = current_user_can('break_content_lock');
+           $can_break_lock = current_user_can('manage_options');
+
 
             // Store lock info for notice display
             set_transient('content_lock_notice_' . get_current_user_id(), [
@@ -268,19 +269,6 @@ class Content_Lock_Admin
         return $this->lock_duration;
     }
 
-    /**
-     * Adds the break lock capability to administrators.
-     *
-     * @since 1.0.0
-     * @return void
-     */
-    public function add_break_lock_capability()
-    {
-        $role = get_role('administrator');
-        if ($role && !$role->has_cap('break_content_lock')) {
-            $role->add_cap('break_content_lock');
-        }
-    }
 
     /**
      * Enqueues admin scripts and styles.
@@ -380,14 +368,14 @@ class Content_Lock_Admin
     /**
      * AJAX handler to forcibly break a post lock.
      *
-     * @since 1.0.0
+     * @since 1.0.1
      * @return void
      */
     public function break_content_lock()
     {
         check_ajax_referer('break_content_lock_nonce', 'nonce');
 
-        if (!current_user_can('break_content_lock')) {
+        if (!current_user_can('manage_options')) {
             wp_send_json_error(__('Permission denied', 'content-lock'));
         }
 
@@ -481,7 +469,7 @@ class Content_Lock_Admin
      * @since 1.0.0
      * @return int Lock duration in seconds.
      */
-    private function get_lock_duration_from_settings()
+    private function sdw_get_lock_duration_from_settings()
     {
         $minutes = get_option('content_lock_duration_minutes', 20);
         return absint($minutes) * 60;
